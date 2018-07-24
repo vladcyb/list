@@ -7,7 +7,6 @@
 #include <fstream>
 #include <tuple>
 #include <algorithm>
-#include <ctime>
 #include <chrono>
 #include <random>
 #include <sstream>
@@ -31,8 +30,15 @@ const string SAVE = "s";
 const string CLS = "clear";
 const string SHOW_FILENAME = "w";
 const string COLOR = "color";
+const string RED = "\e[38;5;196m";
+const string GREEN = "\e[38;5;46m";
+const string PERMISSION_ERROR = "Permission denied";
 string FILENAME;
 string text_color = "";
+
+void PrintMessage(const string& color, const string& error){
+    cout << color << error << text_color << endl;
+}
 
 typedef tuple<string, string> stringTie;
 
@@ -153,14 +159,14 @@ bool Save(People& people, bool& changes){
         string c;
         cin >> c;
         if(c == "y"){
-            ofstream output(FILENAME);
-            if(!output){
-                cout << "\e[38;5;196mPermission denied" + text_color << endl;
+                ofstream output(FILENAME);
+                if(!output){
+                    PrintMessage(RED, PERMISSION_ERROR);
                 return false;
             }
             people.Dump(output);
             changes = false;
-            cout << "\e[38;5;46mSaved" + text_color << endl;
+            PrintMessage(GREEN, "Saved");
             return true;
         }else if (c == "n"){
             return true;
@@ -288,6 +294,8 @@ int main() {
         string color;
         color_file >> color;
         SetConsoleColor(color);
+    }else{
+        text_color = "\033[m";
     }
     while(true){
         bool changes = false;
@@ -303,7 +311,6 @@ int main() {
             continue;
         }
         FILENAME += ".csv";
-        srand( (unsigned)time( NULL ) );
         People people;
         ifstream input(FILENAME);
         if(input){

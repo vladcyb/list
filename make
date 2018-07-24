@@ -1,1 +1,1 @@
-g++ main.cpp -O3 -o a
+g++ main.cpp -Wall -O3 -o a
