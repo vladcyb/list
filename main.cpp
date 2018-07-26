@@ -32,12 +32,48 @@ const string SHOW_FILENAME = "w";
 const string COLOR = "color";
 const string RED = "\e[38;5;196m";
 const string GREEN = "\e[38;5;46m";
+const string DEFAULT_COLOR = "\e[38;5;7";
 const string PERMISSION_ERROR = "Permission denied";
+bool MOTLEY = false;
 string FILENAME;
-string text_color = "";
+string text_color;
+string curr_color_code;
+vector<int> COLORS;
 
-void PrintMessage(const string& color, const string& error){
-    cout << color << error << text_color << endl;
+void SetConsoleColor(string color){
+    if (color == "m"){
+        MOTLEY = !MOTLEY;
+        text_color = "\e[38;5;" + curr_color_code + "m";
+        cout << text_color;
+    }else{
+        MOTLEY = false;
+        curr_color_code = color;
+        text_color = "\e[38;5;" + color + "m";
+        cout << text_color;
+    }
+}
+
+void SaveColorToFile(){
+    ofstream color_file(COLOR);
+    color_file << curr_color_code << ' ' << MOTLEY;
+}
+
+void PrintMessage(const string& color, const string& msg){
+    cout << color << msg << endl;
+    if(!MOTLEY){
+        cout << text_color;
+    }
+}
+
+int GetRandomNumber(int min_val, int max_val){
+    std::random_device trueRandom;
+    std::mt19937 pseudoRandom(trueRandom());
+    std::uniform_int_distribution<int> distribution(min_val, max_val);
+    return distribution(pseudoRandom);
+}
+
+string GetRandomColor(){
+    return to_string(COLORS[GetRandomNumber(0, COLORS.size() - 1)]);
 }
 
 typedef tuple<string, string> stringTie;
@@ -87,6 +123,9 @@ public:
         int i = 1;
         cout << endl;
         for(const auto& person : people){
+            if (MOTLEY){
+                cout << "\e[38;5;" + GetRandomColor() + "m";
+            }
             cout << i++ << ' ' << person << endl;
         }
     }
@@ -117,7 +156,7 @@ public:
             });
         }
     }
-    size_t GetPeopleSize() const {
+    int GetPeopleSize() const {
         return people.size();
     }
     void Dump(ofstream& stream) const {
@@ -130,10 +169,7 @@ public:
         shuffle (people.begin(), people.end(), std::default_random_engine(seed));
     }
     string GetRandomPerson(const string& q) {
-        std::random_device trueRandom;
-        std::mt19937 pseudoRandom(trueRandom());
-        std::uniform_int_distribution<int> distribution(0, people.size() - 1);
-        last_random_person = people.at(distribution(pseudoRandom));
+        last_random_person = people.at(GetRandomNumber(0, people.size() - 1));
         return q == RAND ? last_random_person.ToString() : q == RAND1 ? last_random_person.surname : last_random_person.name;
     }
     void PrintRandomPerson(const string& q){
@@ -151,10 +187,10 @@ private:
 };
 
 bool Save(People& people, bool& changes){
-	if (!changes){
+    if (!changes){
         return true;
     }
-	while(true){
+    while(true){
         cout << "Save changes? (y/n)" << endl;
         string c;
         cin >> c;
@@ -172,13 +208,6 @@ bool Save(People& people, bool& changes){
             return true;
         }
     }
-}
-
-void SetConsoleColor(string color){
-    text_color = "\e[38;5;" + color + "m";
-    cout << text_color;
-    ofstream fout(COLOR);
-    fout << color;
 }
 
 bool Proc(People& people, bool& changes, string& last_query){
@@ -275,8 +304,10 @@ bool Proc(People& people, bool& changes, string& last_query){
         query="";
     }else if(query == COLOR){
         string color;
+        query_stream.clear();
         query_stream >> color;
         SetConsoleColor(color);
+        SaveColorToFile();
         query="";
     }else if (query == SHOW_FILENAME){
         cout << FILENAME << endl;
@@ -288,26 +319,45 @@ bool Proc(People& people, bool& changes, string& last_query){
     return true;
 }
 
-int main() {
+void FillColorList(){
+    int N = 231;
+    COLORS.resize(N);
+    for(int i = 0; i < N; ++i){
+        COLORS.at(i) = i + 1;
+    }
+    COLORS.erase(COLORS.begin() + 15);
+}
+
+void ReadColorFromFile(){
     ifstream color_file(COLOR);
     if(color_file){
-        string color;
-        color_file >> color;
-        SetConsoleColor(color);
+        color_file >> curr_color_code;
+        color_file >> MOTLEY;
+        if(!MOTLEY){
+            SetConsoleColor(curr_color_code);
+        }
     }else{
-        text_color = "\033[m";
+        curr_color_code = "7";
+        text_color = DEFAULT_COLOR;
     }
+}
+
+int main() {
+    FillColorList();
+    ReadColorFromFile();
     while(true){
         bool changes = false;
         cin >> FILENAME;
         if (FILENAME == QUIT){
-            cout << "\e[39m";
+            cout << DEFAULT_COLOR;
             return 0;
         }
         if(FILENAME == COLOR){
             string color;
+            cin.clear();
             cin >> color;
             SetConsoleColor(color);
+            SaveColorToFile();
             continue;
         }
         FILENAME += ".csv";
@@ -325,6 +375,6 @@ int main() {
         string last_query;
         while(Proc(people, changes, last_query));
 
-	}
+    }
     return 0;
 }
