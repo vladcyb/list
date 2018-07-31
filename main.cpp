@@ -15,6 +15,7 @@
 using namespace std;
 
 const string ADD = "add";
+const string SEL = "sel";
 const string REMOVE = "rm";
 const string EDIT = "edit";
 const string SORT = "sort";
@@ -82,6 +83,7 @@ class Person{
 public:
     string surname;
     string name;
+    bool selected = false;
     Person(string s = "-", string n = "-"){
         surname = s;
         name = n;
@@ -101,21 +103,22 @@ stringstream& operator>>(stringstream& ss, Person& person){
     stringstream ss1(s);
     if (s.find(',') != string::npos){
         getline(ss1, person.surname, ',');
-        getline(ss1, person.name);
+        getline(ss1, person.name, ',');
+        ss1 >> person.selected;
     }else{
         ss1 >> person.surname >> person.name;
     }
     return ss;
 }
 
-ostream& operator<<(ostream& stream, const Person& person){
-    stream << left << person.surname << ' ' <<
+ostream& operator<<(ostream& out, const Person& person){
+    return out << left << person.surname << ' ' <<
     (person.name == "-" ? "" : person.name);
-    return stream;
 }
 
 class People{
 public:
+    bool changed;
     Person GetLastRandomPerson() const {
         return last_random_person;
     }
@@ -126,7 +129,11 @@ public:
             if (MOTLEY){
                 cout << "\e[38;5;" + GetRandomColor() + "m";
             }
+            if(person.selected){
+                cout << RED;
+            }
             cout << i++ << ' ' << person << endl;
+            cout << "\e[38;5;" + curr_color_code + "m";
         }
     }
     void Add(const string& s){
@@ -145,6 +152,17 @@ public:
     void Set(int n, const Person& person) {
         people.at(n - 1) = person;
     }
+    void RemoveSelected(){
+        for(auto it = people.begin(); it != people.end(); ++it){
+            if((*it).selected){
+                people.erase(it--);
+                changed = true;
+            }
+        }
+    }
+    void ToggleSelect(size_t n){
+        people.at(n - 1).selected = !people.at(n - 1).selected;
+    }
     void Sort(const string& by_what){
         if(by_what == "2"){
             sort(people.begin(), people.end(), [&](const Person& p1, const Person& p2){
@@ -161,7 +179,7 @@ public:
     }
     void Dump(ofstream& stream) const {
         for(const Person& person : people){
-            stream << person.surname << ',' << person.name << endl;
+            stream << person.surname << ',' << person.name << ',' << person.selected << endl;
         }
     }
     void Shuffle(){
@@ -186,8 +204,8 @@ private:
     }
 };
 
-bool Save(People& people, bool& changes){
-    if (!changes){
+bool Save(People& people){
+    if (!people.changed){
         return true;
     }
     while(true){
@@ -201,7 +219,7 @@ bool Save(People& people, bool& changes){
                 return false;
             }
             people.Dump(output);
-            changes = false;
+            people.changed = false;
             PrintMessage(GREEN, "Saved");
             return true;
         }else if (c == "n"){
@@ -210,7 +228,7 @@ bool Save(People& people, bool& changes){
     }
 }
 
-bool Proc(People& people, bool& changes, string& last_query){
+bool Proc(People& people, string& last_query){
     string query, q;
     getline(cin, q);
     stringstream query_stream(q);
@@ -222,7 +240,7 @@ bool Proc(People& people, bool& changes, string& last_query){
         query = "";
         getline(query_stream, query);
         people.Add(query);
-        changes = true;
+        people.changed = true;
         people.PrintTable();
     }else if(query == REMOVE){
         string s;
@@ -234,11 +252,13 @@ bool Proc(People& people, bool& changes, string& last_query){
         ss1 >> s1;
         if(s1 == "*"){
             people.Clear();
-            changes = true;
+            people.changed = true;
+        }else if(s1 == SEL){
+            people.RemoveSelected();
         }else{
             stringstream ss1(s);
             int n;
-            set<int> numbers;
+            set<size_t> numbers;
             ss1.clear();
             while(ss1 >> n){
                 numbers.insert(n);
@@ -250,7 +270,7 @@ bool Proc(People& people, bool& changes, string& last_query){
                     cout << "ERROR" << endl;
                 }else{
                     people.Erase(n);
-                    changes = true;
+                    people.changed = true;
                     ++i;
                 }
             }
@@ -268,9 +288,25 @@ bool Proc(People& people, bool& changes, string& last_query){
             ss >> person;
             person.Trim();
             people.Set(n, person);
-            changes = true;
+            people.changed = true;
         }
         people.PrintTable();
+    }else if(query == SEL){
+
+        set<size_t> marks;
+        size_t n;
+        while(query_stream >> n){
+            marks.insert(n);
+        }
+        if(marks.empty()){
+            PrintMessage(RED, "Usage: sel n1, n2, n3, ...");
+        }
+        for(const auto& x : marks){
+            people.ToggleSelect(x);
+        }
+        people.changed = true;
+        people.PrintTable();
+
     }else if(query == CLS){
         system("clear");
         people.PrintTable();
@@ -280,24 +316,24 @@ bool Proc(People& people, bool& changes, string& last_query){
         string by_what;
         query_stream >> by_what;
         people.Sort(by_what);
-        changes = true;
+        people.changed = true;
         people.PrintTable();
     }else if(query == RAND ||
                 query == RAND1 || query == RAND2){
         people.PrintRandomPerson(query);
     }else if(query == SHUFFLE){
         people.Shuffle();
-        changes = true;
+        people.changed = true;
         people.PrintTable();
     }else if(query == QUIT) {
-        if(Save(people, changes)){
+        if(Save(people)){
             return false;
         }
     }else if (query == PRINT){
         people.PrintTable();
     }else if(query == SAVE){
-        if (changes){
-            Save(people, changes);
+        if (people.changed){
+            Save(people);
         }else{
             cout << "Nothing to save" << endl;
         }
@@ -346,7 +382,6 @@ int main() {
     FillColorList();
     ReadColorFromFile();
     while(true){
-        bool changes = false;
         cin >> FILENAME;
         if (FILENAME == QUIT){
             cout << DEFAULT_COLOR;
@@ -373,7 +408,7 @@ int main() {
         people.PrintTable();
 
         string last_query;
-        while(Proc(people, changes, last_query));
+        while(Proc(people, last_query));
 
     }
     return 0;
