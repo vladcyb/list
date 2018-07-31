@@ -118,7 +118,6 @@ ostream& operator<<(ostream& out, const Person& person){
 
 class People{
 public:
-    bool changed;
     Person GetLastRandomPerson() const {
         return last_random_person;
     }
@@ -193,7 +192,14 @@ public:
     void PrintRandomPerson(const string& q){
         cout << GetRandomPerson(q) << endl;
     }
+    bool isChanged(){
+        return changed;
+    }
+    void SetChanged(bool b){
+        changed = b;
+    }
 private:
+    bool changed;
     Person last_random_person;
     vector<Person> people;
     stringTie GetRankSurname(const Person& p){
@@ -205,7 +211,7 @@ private:
 };
 
 bool Save(People& people){
-    if (!people.changed){
+    if (!people.isChanged()){
         return true;
     }
     while(true){
@@ -219,7 +225,7 @@ bool Save(People& people){
                 return false;
             }
             people.Dump(output);
-            people.changed = false;
+            people.SetChanged(false);
             PrintMessage(GREEN, "Saved");
             return true;
         }else if (c == "n"){
@@ -240,7 +246,7 @@ bool Proc(People& people, string& last_query){
         query = "";
         getline(query_stream, query);
         people.Add(query);
-        people.changed = true;
+        people.SetChanged(true);
         people.PrintTable();
     }else if(query == REMOVE){
         string s;
@@ -252,7 +258,7 @@ bool Proc(People& people, string& last_query){
         ss1 >> s1;
         if(s1 == "*"){
             people.Clear();
-            people.changed = true;
+            people.SetChanged(true);
         }else if(s1 == SEL){
             people.RemoveSelected();
         }else{
@@ -270,7 +276,7 @@ bool Proc(People& people, string& last_query){
                     cout << "ERROR" << endl;
                 }else{
                     people.Erase(n);
-                    people.changed = true;
+                    people.SetChanged(true);
                     ++i;
                 }
             }
@@ -288,7 +294,7 @@ bool Proc(People& people, string& last_query){
             ss >> person;
             person.Trim();
             people.Set(n, person);
-            people.changed = true;
+            people.SetChanged(true);
         }
         people.PrintTable();
     }else if(query == SEL){
@@ -304,7 +310,7 @@ bool Proc(People& people, string& last_query){
         for(const auto& x : marks){
             people.ToggleSelect(x);
         }
-        people.changed = true;
+        people.SetChanged(true);
         people.PrintTable();
 
     }else if(query == CLS){
@@ -316,14 +322,14 @@ bool Proc(People& people, string& last_query){
         string by_what;
         query_stream >> by_what;
         people.Sort(by_what);
-        people.changed = true;
+        people.SetChanged(true);
         people.PrintTable();
     }else if(query == RAND ||
                 query == RAND1 || query == RAND2){
         people.PrintRandomPerson(query);
     }else if(query == SHUFFLE){
         people.Shuffle();
-        people.changed = true;
+        people.SetChanged(true);
         people.PrintTable();
     }else if(query == QUIT) {
         if(Save(people)){
@@ -332,7 +338,7 @@ bool Proc(People& people, string& last_query){
     }else if (query == PRINT){
         people.PrintTable();
     }else if(query == SAVE){
-        if (people.changed){
+        if (people.isChanged()){
             Save(people);
         }else{
             cout << "Nothing to save" << endl;
