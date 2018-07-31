@@ -199,7 +199,7 @@ public:
         changed = b;
     }
 private:
-    bool changed;
+    bool changed = false;
     Person last_random_person;
     vector<Person> people;
     stringTie GetRankSurname(const Person& p){
