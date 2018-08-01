@@ -106,7 +106,9 @@ stringstream& operator>>(stringstream& ss, Person& person){
         getline(ss1, person.name, ',');
         ss1 >> person.selected;
     }else{
-        ss1 >> person.surname >> person.name;
+        ss1 >> person.surname 
+>> person.name >> 
+person.selected;
     }
     return ss;
 }
