@@ -1,45 +1,6 @@
-#include <iostream>
-#include <map>
-#include <set>
-#include <vector>
-#include <string>
-#include <iomanip>
-#include <fstream>
-#include <tuple>
-#include <algorithm>
-#include <chrono>
-#include <random>
-#include <sstream>
-#include <regex>
+#include "vars.h"
 
 using namespace std;
-
-const string ADD = "add";
-const string SEL = "sel";
-const string REMOVE = "rm";
-const string EDIT = "edit";
-const string SORT = "sort";
-const string RAND = "r";
-const string QUIT = "q";
-const string RAND1 = "i";
-const string RAND2 = "j";
-const string SHUFFLE = "shuffle";
-const string PRINT = "p";
-const string LAST_RANDOM = "k";
-const string LAST_RANDOM1 = "a";
-const string SAVE = "s";
-const string CLS = "clear";
-const string SHOW_FILENAME = "w";
-const string COLOR = "color";
-const string RED = "\e[38;5;196m";
-const string GREEN = "\e[38;5;46m";
-const string DEFAULT_COLOR = "\e[38;5;7";
-const string PERMISSION_ERROR = "Permission denied";
-bool MOTLEY = false;
-string FILENAME;
-string text_color;
-string curr_color_code;
-vector<int> COLORS;
 
 void SetConsoleColor(string color){
     if (color == "m"){
@@ -106,10 +67,9 @@ stringstream& operator>>(stringstream& ss, Person& person){
         getline(ss1, person.name, ',');
         ss1 >> person.selected;
     }else{
-        ss1 >> person.surname 
->> person.name >> 
-person.selected;
+        ss1 >> person.surname >> person.name >> person.selected;
     }
+    person.Trim();
     return ss;
 }
 
@@ -141,7 +101,6 @@ public:
         stringstream ss(s);
         Person person;
         ss >> person;
-        person.Trim();
         people.push_back(person);
     }
     void Erase(int n){
@@ -294,7 +253,6 @@ bool Proc(People& people, string& last_query){
         }else{
             Person person;
             ss >> person;
-            person.Trim();
             people.Set(n, person);
             people.SetChanged(true);
         }

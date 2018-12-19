@@ -1,3 +1,4 @@
 a
 *.csv
 a.exe
+.atom-build.yml
