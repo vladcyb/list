@@ -1,4 +1,8 @@
 a
+list
 *.csv
 a.exe
 .atom-build.yml
+*.pro
+*.gch
+*.user
