@@ -67,7 +67,7 @@ int main() {
     while(true){
         cin >> app.FILENAME;
         if (app.FILENAME == app.QUIT){
-            cout << app.DEFAULT_COLOR + "m";
+            system("tput init");
             return 0;
         }
         if(app.FILENAME == app.COLOR){
