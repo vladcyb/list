@@ -35,9 +35,9 @@ struct{
     const std::string CLS = "clear";
     const std::string SHOW_FILENAME = "w";
     const std::string COLOR = "color";
-    const std::string RED = "\\e[38;5;196m";
-    const std::string GREEN = "\\e[38;5;46m";
-    const std::string DEFAULT_COLOR = "\\e[38;5;7";
+    const std::string RED = "\e[38;5;196m";
+    const std::string GREEN = "\e[38;5;46m";
+    const std::string DEFAULT_COLOR = "\e[38;5;7";
     const std::string PERMISSION_ERROR = "Permission denied";
     bool MOTLEY;
     std::string FILENAME;
