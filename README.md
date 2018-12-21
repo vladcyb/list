@@ -1,2 +1,2 @@
 # list
-Works in bash
+Linux

@@ -47,7 +47,7 @@ struct{
     std::vector<int> COLORS;
 } app;
 
-void SetConsoleColor(std::string color);
+void SetConsoleColor(const std::string& color);
 void SaveColorToFile();
 void PrintMessage(const std::string& color, const std::string& msg);
 int GetRandomNumber(int min_val, int max_val);

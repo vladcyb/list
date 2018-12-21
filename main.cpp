@@ -2,7 +2,7 @@
 
 using namespace std;
 
-void SetConsoleColor(string color){
+void SetConsoleColor(const string& color){
     if (color == "m"){
         app.MOTLEY = !app.MOTLEY;
         app.text_color = "\e[38;5;" + app.curr_color_code + "m";

@@ -2,19 +2,19 @@
 
 class Person{
 public:
-    std::string surname;
-    std::string name;
+    std::string field1;
+    std::string field2;
     bool selected = false;
     Person(std::string s = "-", std::string n = "-"){
-        surname = s;
-        name = n;
+        field1 = s;
+        field2 = n;
     }
     std::string ToString() const {
-        return surname + " " + (name == "-" ? "" : name);
+        return field1 + " " + (field2 == "-" ? "" : field2);
     }
     void Trim(){
-        surname = regex_replace(surname, std::regex("^ +| +$|( ) +"), "$1");
-        name = regex_replace(name, std::regex("^ +| +$|( ) +"), "$1");
+        field1 = regex_replace(field1, std::regex("^ +| +$|( ) +"), "$1");
+        field2 = regex_replace(field2, std::regex("^ +| +$|( ) +"), "$1");
     }
 };
 
@@ -24,17 +24,17 @@ std::stringstream& operator>>(std::stringstream& ss, Person& person){
     getline(ss, s);
     stringstream ss1(s);
     if (s.find(',') != string::npos){
-        getline(ss1, person.surname, ',');
-        getline(ss1, person.name, ',');
+        getline(ss1, person.field1, ',');
+        getline(ss1, person.field2, ',');
         ss1 >> person.selected;
     }else{
-        ss1 >> person.surname >> person.name >> person.selected;
+        ss1 >> person.field1 >> person.field2 >> person.selected;
     }
     person.Trim();
     return ss;
 }
 
 std::ostream& operator<<(std::ostream& out, const Person& person){
-    return out << person.surname << ' ' <<
-    (person.name == "-" ? "" : person.name);
+    return out << person.field1 << ' ' <<
+    (person.field2 == "-" ? "" : person.field2);
 }

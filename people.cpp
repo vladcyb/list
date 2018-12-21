@@ -59,11 +59,11 @@ public:
     void Sort(const std::string& by_what){
         if(by_what == "2"){
             sort(people.begin(), people.end(), [&](const Person& p1, const Person& p2){
-                return GetRankName(p1) < GetRankName(p2);
+                return GetRankcolumnSecondFirst(p1) < GetRankcolumnSecondFirst(p2);
             });
         }else{
             sort(people.begin(), people.end(), [&](const Person& p1, const Person& p2){
-                return GetRankSurname(p1) < GetRankSurname(p2);
+                return GetRankColumnFirstSecond(p1) < GetRankColumnFirstSecond(p2);
             });
         }
     }
@@ -74,7 +74,7 @@ public:
 
     void Dump(std::ofstream& stream) const {
         for(const Person& person : people){
-            stream << person.surname << ',' << person.name << ',' << person.selected << std::endl;
+            stream << person.field1 << ',' << person.field2 << ',' << person.selected << std::endl;
         }
     }
 
@@ -85,7 +85,7 @@ public:
 
     std::string GetRandomPerson(const std::string& q) {
         last_random_person = people.at(GetRandomNumber(0, people.size() - 1));
-        return q == app.RAND ? last_random_person.ToString() : q == app.RAND1 ? last_random_person.surname : last_random_person.name;
+        return q == app.RAND ? last_random_person.ToString() : q == app.RAND1 ? last_random_person.field1 : last_random_person.field2;
     }
 
     void PrintRandomPerson(const std::string& q){
@@ -104,11 +104,11 @@ private:
     bool changed = false;
     Person last_random_person;
     std::vector<Person> people;
-    stringTie GetRankSurname(const Person& p){
-        return tie(p.surname, p.name);
+    stringTie GetRankColumnFirstSecond(const Person& p){
+        return tie(p.field1, p.field2);
     }
-    stringTie GetRankName(const Person& p){
-        return tie(p.name, p.surname);
+    stringTie GetRankcolumnSecondFirst(const Person& p){
+        return tie(p.field2, p.field1);
     }
 };
 
