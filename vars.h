@@ -32,6 +32,7 @@ struct{
     const std::string LAST_RANDOM = "k";
     const std::string LAST_RANDOM1 = "a";
     const std::string SAVE = "s";
+    const std::string LS = "ls";
     const std::string CLS = "clear";
     const std::string SHOW_FILENAME = "w";
     const std::string COLOR = "color";

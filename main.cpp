@@ -67,6 +67,7 @@ int main() {
     while(true){
         cin >> app.FILENAME;
         if (app.FILENAME == app.QUIT){
+            cout << "(QUIT)" << endl;
             system("tput init");
             return 0;
         }
@@ -76,6 +77,10 @@ int main() {
             cin >> color;
             SetConsoleColor(color);
             SaveColorToFile();
+            continue;
+        }
+        if(app.FILENAME == app.LS){
+            system("ls *.csv");
             continue;
         }
         app.FILENAME += ".csv";

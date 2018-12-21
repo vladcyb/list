@@ -236,6 +236,7 @@ bool Proc(People& people, std::string& last_query){
         people.PrintTable();
     }else if(query == app.QUIT) {
         if(Save(people)){
+            cout << "(quit)" << endl << endl;
             return false;
         }
     }else if (query == app.PRINT){
